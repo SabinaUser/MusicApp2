@@ -1,0 +1,83 @@
+.music-container {
+    padding: 20px;
+    width: 100%;
+    margin: 0;
+}
+
+.page-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #333;
+}
+
+.music-grid {
+    width:100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    outline: 2px dashed red;
+}
+
+.music-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease;
+    outline: 2px solid green;
+}
+
+    .music-card:hover {
+        transform: translateY(-5px);
+    }
+
+.music-poster {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.music-info h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #222;
+}
+
+.music-info p {
+    font-size: 14px;
+    color: #666;
+}
+
+.music-player {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.music-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.delete-btn,
+.fav-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #e74c3c;
+}
+
+.fav-btn {
+    background-color: #3498db;
+}
