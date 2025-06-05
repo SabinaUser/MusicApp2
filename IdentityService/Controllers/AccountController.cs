@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Music.DataAccess.Services;
 using Music.Shared.Dtos;
 using Music.Shared.Entities;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,13 +18,15 @@ namespace IdentityService.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IFileService _fileService;
         private readonly IConfiguration _configuration;
 
-        public AccountController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AccountController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration,IFileService fileService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _configuration = configuration;
+            _fileService = fileService;
         }
 
         [HttpPost("signup")]
@@ -83,6 +87,111 @@ namespace IdentityService.Controllers
                 expiration = token.ValidTo
             });
         }
+
+        [HttpGet("profile")]
+        [Authorize]
+
+        public async Task<IActionResult> GetProfile()
+
+        {
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+
+            {
+
+                return NotFound("User Not Found");
+
+            }
+
+            var dto = new ProfileDto
+
+            {
+
+                FullName = user.FullName,
+
+                Email = user.Email,
+
+                ProfileImageUrl = user.ProfileImageUrl,
+
+                CreatedAt = user.CreatedAt,
+
+            };
+
+            return Ok(dto);
+
+        }
+        [HttpPost("upload-profile-image")]
+        [Authorize]
+        public async Task<IActionResult> UploadProfileImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("File is empty");
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound("User not found");
+
+            // FileService vasitəsilə faylı yükləyirik
+            var relativeFilePath = await _fileService.UploadFileAsync(file);
+            if (string.IsNullOrEmpty(relativeFilePath))
+                return BadRequest("File upload failed");
+
+            // İstəsən, istifadəçinin profil şəkil URL-sini əldə etmək üçün file URL metodundan istifadə et:
+            user.ProfileImageUrl = relativeFilePath; // Ya da: _fileService.GetFileUrl(relativeFilePath)
+            await _userManager.UpdateAsync(user);
+
+            return Ok(new { ImageUrl = user.ProfileImageUrl });
+        }
+
+        //[HttpPost("upload-profile-image")]
+
+        //public async Task<IActionResult> UploadProfileImage(IFormFile file)
+
+        //{
+
+        //    if (file == null || file.Length == 0)
+
+        //        return BadRequest("File is empty");
+
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        //    var user = await _userManager.FindByIdAsync(userId);
+
+        //    if (user == null)
+
+        //        return NotFound("User not found");
+
+        //    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "profile-images");
+
+        //    if (!Directory.Exists(uploadsFolder))
+
+        //        Directory.CreateDirectory(uploadsFolder);
+
+        //    var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+
+        //    var filePath = Path.Combine(uploadsFolder, fileName);
+
+        //    using (var stream = new FileStream(filePath, FileMode.Create))
+
+        //    {
+
+        //        await file.CopyToAsync(stream);
+
+        //    }
+
+        //    user.ProfileImageUrl = $"/profile-images/{fileName}";
+
+        //    await _userManager.UpdateAsync(user);
+
+        //    return Ok(new { ImageUrl = user.ProfileImageUrl });
+
+        //}
+
 
     }
 }

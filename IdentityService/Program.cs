@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Music.DataAccess.Services;
 using Music.Shared.Data;
 using Music.Shared.Entities;
 using System.Text;
@@ -37,6 +38,7 @@ namespace IdentityService
 
 
             builder.Services.AddControllers();
+            builder.Services.AddScoped<IFileService, FileService>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -63,6 +65,8 @@ namespace IdentityService
                     };
                 });
             var app = builder.Build();
+
+            app.UseStaticFiles();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

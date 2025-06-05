@@ -5,6 +5,7 @@ import MusicPage from "./components/MusicPage";
 import FavoritesPage from "./components/FavoritesPage";
 import Navbar from "./components/Navbar";
 import './App.css';
+import Profile from "./components/Profile";
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,6 +32,7 @@ function App() {
                     <Route path="/" element={<Navigate to="/home" />} />
                     <Route path="/home" element={<MusicPage />} />
                     <Route path="/favorites" element={<FavoritesPage />} />
+                    <Route path="/profile" element={<Profile/>} />
                 </Routes>
             </Router>
         </div>
