@@ -55,7 +55,8 @@ const MusicList = () => {
                     <div key={music.id} className="music-card">
                         {music.posterImagePath && (
                             <img
-                                src={`https://localhost:7037/${music.posterImagePath}`}
+                                /*src={`http://localhost:8000/${music.posterImagePath}`}*/
+                                src={`http://localhost:8000/${music.posterImagePath.replace(/^\/+/, "")}`}
                                 alt="poster"
                                 className="music-poster"
                             />
@@ -64,10 +65,14 @@ const MusicList = () => {
                             <h3>{music.title}</h3>
                             <p>{music.artist}</p>
                         </div>
-                        <audio controls className="music-player">
-                            <source src={`https://localhost:7037/${music.filePath}`} type="audio/mpeg" />
+                        <audio
+                            controls
+                            className="music-player"
+                            src={`http://localhost:8000/${music.filePath.replace(/^\/+/, "")}`}
+                        >
                             Your browser does not support the audio element.
                         </audio>
+
                         <div className="music-actions">
                             <button onClick={() => handleDelete(music.id)} className="delete-btn">Sil</button>
                             <button onClick={() => handleAddFavorite(music.id)} className="fav-btn">❤️ Favorit</button>

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const musicApi = axios.create({
-    baseURL: "https://localhost:7117",
+    baseURL: "http://localhost:8000",
     headers: {
         "Content-Type": "application/json",
     },

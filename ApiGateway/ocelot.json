@@ -2,11 +2,11 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/music/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7037
+          "Host": "musicservice",
+          "Port": 8080
         }
       ],
       "UpstreamPathTemplate": "/music/{everything}",
@@ -14,18 +14,116 @@
     },
     {
       "DownstreamPathTemplate": "/api/identity/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7147
+          "Host": "identityservice",
+          "Port": 8080
         }
       ],
       "UpstreamPathTemplate": "/identity/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "PUT" ]
+    },
+    {
+      "DownstreamPathTemplate": "/uploads/{file}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "musicservice",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/uploads/{file}",
+      "UpstreamHttpMethod": [ "GET" ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:7117"
+    "BaseUrl": "http://apigateway:8000"
   }
 }
+
+
+
+
+//{
+//  "Routes": [
+//    {
+//      "DownstreamPathTemplate": "/api/music/{everything}",
+//      "DownstreamScheme": "http",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "musicservice",
+//          "Port": 8080
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/music/{everything}",
+//      "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "PUT" ]
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/identity/{everything}",
+//      "DownstreamScheme": "http",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "identityservice",
+//          "Port": 8080
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/identity/{everything}",
+//      "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "PUT" ]
+//    },
+//    {
+//      "DownstreamPathTemplate": "/uploads/{*filepath}",
+//      "DownstreamScheme": "http",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "musicservice",
+//          "Port": 8080
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/uploads/{*filepath}",
+//      "UpstreamHttpMethod": [ "GET" ]
+//    }
+//  ],
+//  "GlobalConfiguration": {
+//    "BaseUrl": "http://apigateway:8000"
+//  }
+//}
+
+
+
+
+
+
+
+
+//{
+//  "Routes": [
+//    {
+//      "DownstreamPathTemplate": "/api/music/{everything}",
+//      "DownstreamScheme": "http",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "musicservice",
+//          "Port": 8080
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/music/{everything}",
+//      "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "PUT" ]
+//    },
+//    {
+//      "DownstreamPathTemplate": "/api/identity/{everything}",
+//      "DownstreamScheme": "http",
+//      "DownstreamHostAndPorts": [
+//        {
+//          "Host": "identityservice",
+//          "Port": 8080
+//        }
+//      ],
+//      "UpstreamPathTemplate": "/identity/{everything}",
+//      "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "PUT" ]
+//    }
+//  ],
+//  "GlobalConfiguration": {
+//    "BaseUrl": "http://apigateway:8000"
+//  }
+//}

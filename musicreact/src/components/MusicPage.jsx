@@ -28,7 +28,7 @@ const MusicPage = () => {
         <div className="music-page">
             <div className="music-header">
                 <h2>Musiqi Siyahısı</h2>
-                <UploadMusicButton onSuccess={handleUploadSuccess} />
+                <UploadMusicButton onSuccess={handleUploadSuccess} className="upload-wrapper" />
             </div>
             <div className="music-list-container">
                 <MusicList musicList={musicList} />

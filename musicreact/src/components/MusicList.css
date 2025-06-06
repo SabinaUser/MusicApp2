@@ -16,7 +16,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
-    outline: 2px dashed red;
+   
 }
 
 .music-card {

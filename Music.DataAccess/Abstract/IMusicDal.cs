@@ -15,5 +15,7 @@ namespace Music.DataAccess.Abstract
         Task<List<Musicc>> GetByUserIdAsync(string userId);
         Task AddAsync(Musicc music);
         Task DeleteAsync(Musicc music);
+        Task<List<Musicc>> GetByIdsAsync(List<int> ids);
+
     }
 }

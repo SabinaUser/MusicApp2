@@ -1,6 +1,7 @@
-
+﻿
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Music.DataAccess.Abstract;
 using Music.DataAccess.Concrete.EfEntityFramework;
@@ -8,6 +9,7 @@ using Music.DataAccess.Services;
 using Music.Shared.Data;
 using MusicService.Services.Abstract;
 using MusicService.Services.Concrete;
+using StackExchange.Redis;
 using System.Text;
 namespace MusicService
 {
@@ -31,6 +33,12 @@ namespace MusicService
             builder.Services.AddScoped<IMusicService, MusiccService>(); 
             builder.Services.AddScoped<IMusicDal,EfMusicDal>();
             builder.Services.AddScoped<IFavoriteDal,EfFavoriteDal>();
+            builder.Services.AddScoped<IConnectionMultiplexer>(sp =>
+            {
+                var connection = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ?? "localhost:6379";
+                return ConnectionMultiplexer.Connect(connection);
+            });
+            builder.Services.AddScoped<IRedisService, RedisService>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -54,7 +62,7 @@ namespace MusicService
             {
                 options.AddPolicy("AllowReactApp", builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173")
+                    builder.WithOrigins("http://localhost:3000")
                            .AllowAnyHeader()
                            .AllowAnyMethod()
                            .AllowCredentials();
@@ -63,7 +71,25 @@ namespace MusicService
 
             builder.Services.AddAuthorization();
             var app = builder.Build();
-            app.UseStaticFiles(); 
+            app.UseStaticFiles();
+            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            if (!Directory.Exists(uploadsPath))
+            {
+                Directory.CreateDirectory(uploadsPath);
+            }
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(uploadsPath),
+                RequestPath = "/uploads"
+            });
+
+            //    app.UseStaticFiles(new StaticFileOptions
+            //    {
+            //        FileProvider = new PhysicalFileProvider(
+            //Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+            //        RequestPath = "/uploads"
+            //    });
 
 
             // Configure the HTTP request pipeline.

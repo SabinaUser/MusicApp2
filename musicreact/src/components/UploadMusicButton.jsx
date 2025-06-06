@@ -1,5 +1,7 @@
 ﻿import React, { useState } from "react";
 import musicAxios from "../api/axiosMusic2";
+import "./UploadMusicButton.css";
+
 
 
 const UploadMusicButton = ({ onSuccess }) => {
@@ -42,13 +44,17 @@ const UploadMusicButton = ({ onSuccess }) => {
     };
 
     return (
-        <div>
-            <button onClick={toggleForm}>
+        <div className="upload-container">
+            <button onClick={toggleForm} className="toggle-btn">
                 {showForm ? "Formu Gizlət" : "Musiqi Yüklə"}
             </button>
 
             {showForm && (
-                <form onSubmit={handleSubmit} encType="multipart/form-data" style={{ marginTop: "1rem" }}>
+                <form
+                    onSubmit={handleSubmit}
+                    encType="multipart/form-data"
+                    className="upload-form"
+                >
                     <input
                         type="text"
                         placeholder="Başlıq"
@@ -79,6 +85,46 @@ const UploadMusicButton = ({ onSuccess }) => {
             )}
         </div>
     );
+
+
+    //return (
+    //    <div>
+    //        <button onClick={toggleForm}>
+    //            {showForm ? "Formu Gizlət" : "Musiqi Yüklə"}
+    //        </button>
+
+    //        {showForm && (
+    //            <form onSubmit={handleSubmit} encType="multipart/form-data" style={{ marginTop: "1rem" }}>
+    //                <input
+    //                    type="text"
+    //                    placeholder="Başlıq"
+    //                    value={title}
+    //                    onChange={(e) => setTitle(e.target.value)}
+    //                    required
+    //                />
+    //                <input
+    //                    type="text"
+    //                    placeholder="İfaçı"
+    //                    value={artist}
+    //                    onChange={(e) => setArtist(e.target.value)}
+    //                    required
+    //                />
+    //                <input
+    //                    type="file"
+    //                    accept="audio/*"
+    //                    onChange={(e) => setFile(e.target.files[0])}
+    //                    required
+    //                />
+    //                <input
+    //                    type="file"
+    //                    accept="image/*"
+    //                    onChange={(e) => setPoster(e.target.files[0])}
+    //                />
+    //                <button type="submit">Yüklə</button>
+    //            </form>
+    //        )}
+    //    </div>
+    //);
 };
 
 export default UploadMusicButton;

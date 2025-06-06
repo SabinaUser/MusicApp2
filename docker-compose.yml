@@ -1,0 +1,93 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "Strong@Passw0rd123!!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    restart: always
+    networks:
+      - musicnet
+
+  redis:
+    image: redis:7.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - musicnet
+
+  identityservice:
+    build:
+      context: .
+      dockerfile: IdentityService/Dockerfile
+    container_name: identityservice
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=MusicApp;User Id=sa;Password=Strong@Passw0rd123!!;TrustServerCertificate=true;
+    ports:
+      - "5003:8080"
+    depends_on:
+      - sqlserver
+    networks:
+      - musicnet
+
+  musicservice:
+    build:
+      context: .
+      dockerfile: MusicService/Dockerfile
+    container_name: musicservice
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=MusicDb;User Id=sa;Password=Strong@Passw0rd123!!;TrustServerCertificate=true;
+      - REDIS_CONNECTION_STRING=redis:6379
+    ports:
+      - "5002:8080"
+    depends_on:
+      - sqlserver
+      - redis
+    networks:
+      - musicnet
+    volumes:
+      - ./music_uploads:/app/wwwroot/uploads
+
+  apigateway:
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    container_name: apigateway
+    ports:
+      - "8000:8080"
+    depends_on:
+      - identityservice
+      - musicservice
+    networks:
+      - musicnet
+
+  frontend:
+    build:
+      context: ./musicreact 
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - apigateway
+    networks:
+      - musicnet
+
+
+
+volumes:
+  sql_data:
+  redis_data:
+
+networks:
+  musicnet:

@@ -1,5 +1,7 @@
 ﻿import React, { useEffect, useState } from "react";
 import musicApi from "../api/axiosMusic2";
+import "./FavoritesPage.css";
+
 
 const FavoritesPage = () => {
     const [favorites, setFavorites] = useState([]);
@@ -26,20 +28,21 @@ const FavoritesPage = () => {
             alert("Favoritdən silmək mümkün olmadı.");
         }
     };
-
     return (
-        <div>
+        <div className="favorites-container">
             <h2>Favorit Musiqilər</h2>
             {favorites.length === 0 ? (
-                <p>Favorit musiqiniz yoxdur.</p>
+                <p className="empty-message">Favorit musiqiniz yoxdur.</p>
             ) : (
-                <ul>
+                <ul className="favorites-list">
                     {favorites.map((music) => (
                         <li key={music.musicId}>
-                            <strong>{music.title}</strong> - {music.artist}
+                            <span>
+                                <strong>{music.title}</strong> - {music.artist}
+                            </span>
                             <button
+                                className="remove-btn"
                                 onClick={() => handleRemove(music.musicId)}
-                                style={{ marginLeft: "10px", color: "red" }}
                             >
                                 Remove
                             </button>
@@ -49,6 +52,8 @@ const FavoritesPage = () => {
             )}
         </div>
     );
+
+    
 };
 
 export default FavoritesPage;

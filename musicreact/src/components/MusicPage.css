@@ -7,11 +7,18 @@
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
+.music-header > *:last-child {
+    margin-left: auto;
+}
+.upload-wrapper {
+    margin-left: auto;
+}
 
 .music-header {
     display: flex;
     justify-content: space-between;
-   /* align-items: center;*/
+    align-items: flex-start;
+    /* align-items: center;*/
     margin-bottom: 24px;
 }
 

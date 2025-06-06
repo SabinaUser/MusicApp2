@@ -11,12 +11,14 @@ namespace MusicService.Services.Concrete
         private readonly IMusicDal _musicDal;
         private readonly IFileService _fileService;
         private readonly IFavoriteDal _favoriteDal;
+        private readonly IRedisService _redisService;
 
-        public MusiccService(IMusicDal musicDal, IFileService fileService, IFavoriteDal favoriteDal)
+        public MusiccService(IMusicDal musicDal, IFileService fileService, IFavoriteDal favoriteDal, IRedisService redisService)
         {
             _musicDal = musicDal;
             _fileService = fileService;
             _favoriteDal = favoriteDal;
+            _redisService = redisService;
         }
 
         //public async Task<List<Musicc>> GetAllAsync() =>
@@ -85,6 +87,22 @@ namespace MusicService.Services.Concrete
             await _musicDal.DeleteAsync(music);
         }
 
+        //public async Task AddFavoriteAsync(string userId, int musicId)
+        //{
+        //    var exists = await _favoriteDal.ExistsAsync(userId, musicId);
+        //    if (exists)
+        //        throw new InvalidOperationException("Bu musiqi artıq favoritlər siyahısına əlavə olunub.");
+
+        //    var favorite = new Favorite
+        //    {
+        //        UserId = userId,
+        //        MusicId = musicId,
+        //        FavoritedAt = DateTime.UtcNow
+        //    };
+
+        //    await _favoriteDal.AddAsync(favorite);
+        //}
+
         public async Task AddFavoriteAsync(string userId, int musicId)
         {
             var exists = await _favoriteDal.ExistsAsync(userId, musicId);
@@ -99,8 +117,19 @@ namespace MusicService.Services.Concrete
             };
 
             await _favoriteDal.AddAsync(favorite);
+
+            // Redis-ə də əlavə et
+            await _redisService.AddToFavouritesAsync(userId, musicId);
         }
 
+        //public async Task RemoveFavoriteAsync(string userId, int musicId)
+        //{
+        //    var favorite = await _favoriteDal.GetByUserAndMusicAsync(userId, musicId);
+        //    if (favorite == null)
+        //        throw new InvalidOperationException("Bu musiqi favoritlərdə yoxdur.");
+
+        //    await _favoriteDal.DeleteAsync(favorite);
+        //}
         public async Task RemoveFavoriteAsync(string userId, int musicId)
         {
             var favorite = await _favoriteDal.GetByUserAndMusicAsync(userId, musicId);
@@ -108,14 +137,53 @@ namespace MusicService.Services.Concrete
                 throw new InvalidOperationException("Bu musiqi favoritlərdə yoxdur.");
 
             await _favoriteDal.DeleteAsync(favorite);
+
+            // Redis-dən də sil
+            await _redisService.RemoveFromFavouritesAsync(userId, musicId);
         }
+
 
         public async Task<bool> IsFavoritedAsync(string userId, int musicId) =>
             await _favoriteDal.ExistsAsync(userId, musicId);
 
+        //public async Task<List<FavoriteDto>> GetUserFavoritesAsync(string userId)
+        //{
+        //    var favorites = await _favoriteDal.GetUserFavoritesAsync(userId);
+
+        //    return favorites.Select(f => new FavoriteDto
+        //    {
+        //        MusicId = f.MusicId,
+        //        Title = f.Music.Title,
+        //        Artist = f.Music.Artist,
+        //        PosterImagePath = f.Music.PosterImagePath,
+        //        FilePath = f.Music.FilePath,
+        //        FavoritedAt = f.FavoritedAt
+        //    }).ToList();
+        //}
         public async Task<List<FavoriteDto>> GetUserFavoritesAsync(string userId)
         {
+            var redisIds = await _redisService.GetAllFavouritesAsync(userId);
+
+            if (redisIds != null && redisIds.Count > 0)
+            {
+                var musicList = await _musicDal.GetByIdsAsync(redisIds); // Bu metodu DAL səviyyəsində əlavə etməlisən
+
+                return musicList.Select(m => new FavoriteDto
+                {
+                    MusicId = m.Id,
+                    Title = m.Title,
+                    Artist = m.Artist,
+                    PosterImagePath = m.PosterImagePath,
+                    FilePath = m.FilePath,
+                    FavoritedAt = DateTime.UtcNow // Redis-də tarix yoxdur, dummy dəyər
+                }).ToList();
+            }
+
+            // Əgər Redis boşdursa, DB-dən çək və Redis-ə yaz
             var favorites = await _favoriteDal.GetUserFavoritesAsync(userId);
+
+            foreach (var fav in favorites)
+                await _redisService.AddToFavouritesAsync(userId, fav.MusicId);
 
             return favorites.Select(f => new FavoriteDto
             {
@@ -127,6 +195,7 @@ namespace MusicService.Services.Concrete
                 FavoritedAt = f.FavoritedAt
             }).ToList();
         }
+
 
         public async Task<(byte[] FileContent, string ContentType, string FileName)> DownloadMusicAsync(int id)
         {

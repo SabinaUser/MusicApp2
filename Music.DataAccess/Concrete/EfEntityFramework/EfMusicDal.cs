@@ -50,5 +50,12 @@ namespace Music.DataAccess.Concrete.EfEntityFramework
             _context.Musics.Remove(music);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<Musicc>> GetByIdsAsync(List<int> ids)
+        {
+            return await _context.Musics
+                .Where(m => ids.Contains(m.Id))
+                .ToListAsync();
+        }
+
     }
 }
